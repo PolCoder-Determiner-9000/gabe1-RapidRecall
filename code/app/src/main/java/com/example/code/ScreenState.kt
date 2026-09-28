@@ -1,10 +1,9 @@
 package com.example.code
 
 enum class ScreenState {
-    SETUP,
-    ROUND_DISPLAY,
-    ROUND_INPUT,
-    ROUND_FEEDBACK,
-    SUMMARY,
-    EXIT
+                    // IMPLEMENTATIONS:
+    SETUP,          // Main activity
+    ROUND_DISPLAY,  // RoundScreen
+    ROUND_INPUT,    // RoundScreen
+    SUMMARY,        // SummaryScreen
 }

@@ -1,11 +1,17 @@
 package com.example.code
 
+import kotlin.time.Duration
+import kotlin.time.TimeSource
+
 class GameState {
-    var screen = ScreenState.SETUP
-    var player: Player = Player()
-    var globalTime: Int = 67
+    private var screen = ScreenState.SETUP
+    private var roundNum = 0
+    private var feedback = Feedback()
 
-    fun switchGameMode() {
+    var roundLength: Int = 0
 
-    }
+    fun increaseRound() { roundNum += 1 }
+
+
+
 }
