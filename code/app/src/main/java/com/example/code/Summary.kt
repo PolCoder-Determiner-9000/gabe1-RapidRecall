@@ -2,9 +2,7 @@ package com.example.code
 
 import kotlin.time.Duration
 
-class Feedback(
-
-) {
+class Summary() {
     var meanGuess: Double = 0.0
     var totalAttempts: UInt = 0U
     var successfulAttempts: UInt = 0U

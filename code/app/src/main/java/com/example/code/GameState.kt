@@ -1,14 +1,24 @@
 package com.example.code
 
-import kotlin.time.Duration
-import kotlin.time.TimeSource
-
 class GameState {
-    private var roundNum = 0
-    private var feedback = Feedback()
-
-    var roundLength: Int = 0
+    private var roundNum = 1
+    private var feedback = Summary()
+    private var rounds = mutableListOf<Round>()
+    var lengthInput = 0
 
     fun increaseRound() { roundNum += 1 }
+    fun getRound(): Int = roundNum
+
+    fun beginRound() {
+        val inputSequence = Sequence(lengthInput)
+        inputSequence.generate()
+        val initRound = Round(inputSequence, lengthInput)
+        rounds.add(initRound)
+    }
+
+    fun displaySequence() {
+        val roundIndex = roundNum - 1
+        val currentRound = rounds[roundIndex]
+    }
 
 }
