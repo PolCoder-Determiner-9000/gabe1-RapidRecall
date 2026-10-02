@@ -103,6 +103,8 @@ fun GuessNumberScreen(
     var elapsed by remember { mutableStateOf(Duration.ZERO) }
     var finalTime by remember { mutableStateOf<Duration?>(null) }
 
+    // Run Coroutines to
+    // Coroutine to delay the game ending to signal that you're correct
     LaunchedEffect(finalTime) {
         finalTime?.let {
             delay(2.seconds)
@@ -110,6 +112,7 @@ fun GuessNumberScreen(
         }
     }
 
+    // Coroutine to mark time as the game goes on
     LaunchedEffect(Unit) {
         while (true) {
             elapsed = mark.elapsedNow()
@@ -147,6 +150,7 @@ fun GuessNumberScreen(
             Button(
                 modifier = Modifier.padding(vertical = 12.dp),
                 // See Citation [2]
+                // Disable input when user is correct
                 enabled = feedbackMessage != "You're correct!",
                 onClick = {
                     val tempSequence = stringToSequence(inputGuess)

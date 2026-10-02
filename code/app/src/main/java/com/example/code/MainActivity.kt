@@ -187,7 +187,7 @@ fun SetupScreen(
 
         Spacer(Modifier.weight(1f))
 
-        // Increment button: https://claude.ai/chat/626991d3-a6eb-4988-a5a5-cd0724a7a22a
+        // Incrementing Button: See Citation [4]
         Row(
             modifier = Modifier.padding(16.dp),
             verticalAlignment = Alignment.CenterVertically,

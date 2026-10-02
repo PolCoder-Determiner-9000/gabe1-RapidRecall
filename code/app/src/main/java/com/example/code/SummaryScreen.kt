@@ -142,7 +142,7 @@ fun SummaryScreen(
             }
 
             Spacer(Modifier.height(12.dp))
-            // See Citation [4]
+            // Horizontal Divider I found while searching documentation
             HorizontalDivider(
                 modifier = Modifier.fillMaxWidth(),
                 thickness = 2.dp,
@@ -180,6 +180,7 @@ fun SummaryScreen(
             Spacer(Modifier.height(24.dp))
 
             // TIME STATISTICS
+            // Formatting from Citation [1]
             Text("Round Time: ${"%.2f".format(recentTime.toDouble(DurationUnit.SECONDS))}s", fontSize = 24.sp)
             Spacer(Modifier.height(8.dp))
             Text("Total Time: ${"%.2f".format(summary.getTotalTime().toDouble(DurationUnit.SECONDS))}s", fontSize = 16.sp)
