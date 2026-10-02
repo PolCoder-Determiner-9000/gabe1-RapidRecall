@@ -28,5 +28,4 @@ class GameState {
         return sequence!!
     }
 
-
 }

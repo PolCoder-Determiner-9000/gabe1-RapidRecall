@@ -13,7 +13,7 @@ class Sequence(
     }
 
     fun copy(copyFrom: List<Int>) {
-        // https://claude.ai/chat/097e3c5a-967c-4ade-8335-a27dee356a91
+        // See Citation [1]
         require(copyFrom.size == length) { "Expected $length elements, got ${copyFrom.size}" }
         sequence = copyFrom.toMutableList()
     }

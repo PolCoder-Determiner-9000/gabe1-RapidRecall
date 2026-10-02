@@ -65,9 +65,11 @@ fun LogScreen(
                 ) {
                     val rounds: List<Round> = summary.getRounds().reversed()
                     items(rounds) { round ->
-                        Text("Round ${round.roundNumber}", fontSize = 24.sp)
+                        Text("Round ${round.roundNumber}", fontSize = 24.sp, fontWeight = FontWeight.Bold)
                         Spacer(Modifier.height(8.dp))
                         Text("Length: ${round.length}", fontSize = 24.sp)
+                        Spacer(Modifier.height(8.dp))
+                        Text("Timestamp: ${"%.2f".format(round.time.toDouble(DurationUnit.SECONDS))}s", fontSize = 24.sp)
                         Spacer(Modifier.height(8.dp))
                         Text("Sequence: ", fontSize = 24.sp)
                         Spacer(Modifier.height(8.dp))
@@ -140,7 +142,7 @@ fun SummaryScreen(
             }
 
             Spacer(Modifier.height(12.dp))
-            // Gemini Search https://kotlinlang.org/api/compose-multiplatform/material3/androidx.compose.material3/-horizontal-divider.html
+            // See Citation [4]
             HorizontalDivider(
                 modifier = Modifier.fillMaxWidth(),
                 thickness = 2.dp,

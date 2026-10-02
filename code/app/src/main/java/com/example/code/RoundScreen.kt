@@ -317,7 +317,7 @@ fun isEqual(a: Sequence, b: Sequence): Boolean {
 
 fun stringToSequence(input: String): Sequence {
     // Parse string of integers into ints
-    // https://claude.ai/chat/097e3c5a-967c-4ade-8335-a27dee356a91
+    // See Citation [1]
     val digits: List<Int> = input.map { it.digitToInt() }
     val length = digits.count()
 

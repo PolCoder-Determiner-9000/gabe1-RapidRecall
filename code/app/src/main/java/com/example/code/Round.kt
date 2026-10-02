@@ -9,5 +9,5 @@ data class Round(
     val roundSequence: Sequence,
     val attempts: Int,
     val time: Duration,
-    val length: Int
+    val length: Int,
 )
