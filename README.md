@@ -27,3 +27,4 @@ A simple guessing-game app that includes all the required features, as well as:
     - Date: September 30, 2026
     - Link:  https://claude.ai/chat/626991d3-a6eb-4988-a5a5-cd0724a7a22a
 # Collaboration
+The starting screen layout was inspired by the Implementation of Melisa Okte-Meza (ccid: oktemeza) and Adriel Banaag (ccid: abanaag), my teammates from `olives`.
