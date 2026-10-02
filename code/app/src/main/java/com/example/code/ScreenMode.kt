@@ -1,8 +1,10 @@
 package com.example.code
 
 enum class ScreenMode {
-    SETUP,
+    ENTRANCE,
+    START,
     DISPLAY,
+    LOG,
     GUESS,
     SUMMARY
 }

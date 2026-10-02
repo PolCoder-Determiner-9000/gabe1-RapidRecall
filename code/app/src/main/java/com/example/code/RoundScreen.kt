@@ -11,7 +11,6 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
-import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material3.Button
 import androidx.compose.material3.OutlinedTextField
@@ -26,25 +25,33 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.text.AnnotatedString
+import androidx.compose.ui.text.SpanStyle
+import androidx.compose.ui.text.buildAnnotatedString
+import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.KeyboardType
+import androidx.compose.ui.text.withStyle
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import kotlinx.coroutines.delay
 import kotlin.time.Duration.Companion.seconds
+import kotlin.time.Duration
+import kotlin.time.TimeSource
 
 @Composable
 fun DisplayNumbers(
-    modifier: Modifier = Modifier,
+    sequence  : List<Int>,
+    roundNum  : Int,
+    modifier  : Modifier = Modifier,
     onFinished: () -> Unit
 ) {
-    val temporaryList = listOf(6, 7, 5, 4, 3)
-
     var index by remember { mutableIntStateOf(0) }
 
     // Coroutine to iterate through stuff or something
-    // Conversation: https://claude.ai/chat/bf00a379-e7c6-439a-8a68-95f51663889e
+    // See Citation [3]
     LaunchedEffect(Unit) {
-        for (i in temporaryList.indices) {
+        for (i in sequence.indices) {
             index = i
             delay(1.seconds)
         }
@@ -56,26 +63,74 @@ fun DisplayNumbers(
         verticalArrangement = Arrangement.Center,
         horizontalAlignment = Alignment.CenterHorizontally
     ) {
-        Text("Number ${index + 1}/${temporaryList.size} of Sequence")
+        Spacer(Modifier.height(128.dp))
+        Text(
+            text = "Round $roundNum",
+            fontSize = 32.sp,
+            fontWeight = FontWeight.Bold
+        )
         Spacer(Modifier.height(8.dp))
-        Text(temporaryList[index].toString(), fontSize = 64.sp)
+        Text(
+            text = "Number ${index + 1}/${sequence.size} of Sequence",
+            fontSize = 24.sp,
+        )
+        Spacer(Modifier.weight(1f))
+        Text(
+            text = sequence[index].toString(),
+            fontSize = 64.sp,
+            fontWeight = FontWeight.Bold
+        )
+        Spacer(Modifier.weight(1f))
     }
 }
 
 @Composable
 fun GuessNumberScreen(
+    answer: Sequence,
+    roundNumber: Int,
     modifier: Modifier = Modifier,
-    onDone: () -> Unit
+    summary: Summary,
+    onDone  : () -> Unit
 ) {
-    // TODO: TEMPORARY VARIABLES THAT SHOULD BE REMOVED
     var inputGuess by remember { mutableStateOf("") }
-    val guesses = remember { mutableStateListOf("12345", "67890", "11111") }
+    val guesses = remember { mutableStateListOf<String>() }
+    var feedbackMessage by remember { mutableStateOf("Guess A Number...") }
+    var attemptNumber by remember { mutableIntStateOf(0) }
+
+    // Elapsed Time
+    // See Citation [1]
+    val mark = remember { TimeSource.Monotonic.markNow() }
+    var elapsed by remember { mutableStateOf(Duration.ZERO) }
+    var finalTime by remember { mutableStateOf<Duration?>(null) }
+
+    LaunchedEffect(finalTime) {
+        finalTime?.let {
+            delay(2.seconds)
+            onDone()
+        }
+    }
+
+    LaunchedEffect(Unit) {
+        while (true) {
+            elapsed = mark.elapsedNow()
+            delay(1.seconds)
+        }
+    }
+
 
     Column(
         modifier = modifier.fillMaxSize(),
         verticalArrangement = Arrangement.Center,
         horizontalAlignment = Alignment.CenterHorizontally
     ) {
+        Spacer(Modifier.height(64.dp))
+        Text(
+            text = feedbackMessage,
+            fontSize = 32.sp,
+            fontWeight = FontWeight.Bold
+        )
+        Spacer(modifier = Modifier.width(8.dp))
+
         Row(
             modifier = modifier.padding(all = 16.dp),
             horizontalArrangement = Arrangement.spacedBy(12.dp)
@@ -91,10 +146,31 @@ fun GuessNumberScreen(
 
             Button(
                 modifier = Modifier.padding(vertical = 12.dp),
+                // See Citation [2]
+                enabled = feedbackMessage != "You're correct!",
                 onClick = {
-                    if (inputGuess == "100") {
-                        onDone()
+                    val tempSequence = stringToSequence(inputGuess)
+                    guesses.add(inputGuess)
+                    attemptNumber += 1
+                    if (isEqual(answer, tempSequence)) {
+                        finalTime = mark.elapsedNow()
+                        val roundStats = Round(
+                            roundNumber = roundNumber,
+                            roundSequence = answer,
+                            attempts = attemptNumber,
+                            time = finalTime!!,
+                            length = answer.getLength()
+                        )
+                        summary.addRound(roundStats)
+                        summary.calculateStatistics()
+                        feedbackMessage = "You're correct!"
+                    } else {
+                        feedbackMessage = if (attemptNumber == 1 ) "You're Wrong!" else {
+                            "You're wrong $attemptNumber times!"
+                        }
+                        inputGuess = ""
                     }
+
                 }
             ) {
                 // Start Display Numbers
@@ -115,18 +191,40 @@ fun GuessNumberScreen(
                 modifier = Modifier.weight(1f),
                 horizontalAlignment = Alignment.CenterHorizontally
             ) {
-                Text("Elapsed Time")
+                Text(
+                    text = "Elapsed Time",
+                    fontSize = 20.sp,
+                    fontWeight = FontWeight.Bold
+                )
                 Spacer(modifier = Modifier.height(8.dp))
-                Text("0:00")
+
+                if (feedbackMessage == "You're correct!" && finalTime != null) {
+                    Text(
+                        text = finalTime!!.toComponents { minutes, seconds, _ -> "%d:%02d".format(minutes, seconds) },
+                        fontSize = 24.sp,
+                    )
+                } else {
+                    Text(
+                        text = elapsed.toComponents { minutes, seconds, _ -> "%d:%02d".format(minutes, seconds) },
+                        fontSize = 24.sp
+                    )
+                }
             }
 
             Column(
                 modifier = Modifier.weight(1f),
                 horizontalAlignment = Alignment.CenterHorizontally
             ) {
-                Text("Attempts")
+                Text(
+                    text = "Attempts",
+                    fontSize = 20.sp,
+                    fontWeight = FontWeight.Bold
+                )
                 Spacer(modifier = Modifier.height(8.dp))
-                Text("0")
+                Text(
+                    text = attemptNumber.toString(),
+                    fontSize = 24.sp,
+                )
             }
         }
 
@@ -136,37 +234,94 @@ fun GuessNumberScreen(
             verticalArrangement = Arrangement.Center,
             horizontalAlignment = Alignment.CenterHorizontally
         ) {
-            Text("Previous Guesses")
+            Text(
+                text = "Previous Guesses",
+                fontSize = 32.sp,
+                fontWeight = FontWeight.Bold
+            )
             GuessHistory(
                 guesses = guesses,
-                modifier = Modifier.weight(1f)   // takes the remaining space
+                modifier = Modifier.weight(1f), // takes the remaining space
+                answer = answer
             )
-
         }
-
     }
-
 }
 
 @Composable
 fun GuessHistory(
     guesses: List<String>,
+    answer: Sequence,
     modifier: Modifier = Modifier,
 ) {
-    val listState = rememberLazyListState()
-
-    // Scroll to the newest guess whenever one is added
-//    LaunchedEffect(guesses.size) {
-//        if (guesses.isNotEmpty()) listState.animateScrollToItem(guesses.lastIndex)
-//    }
-
     LazyColumn(
-        state = listState,
         modifier = modifier,
-        verticalArrangement = Arrangement.spacedBy(8.dp)
+        verticalArrangement = Arrangement.spacedBy(8.dp),
+        horizontalAlignment = Alignment.CenterHorizontally
     ) {
         items(guesses) { guess ->
-            Text(guess)
+            val tempSequence = stringToSequence(guess)
+            Text(
+                text = coloredSequenceText(tempSequence, answer),
+                fontSize = 30.sp,
+            )
         }
     }
+}
+
+/*
+* Wordle-Style Feedback System
+* Through every sequence (as one sequence, a bit confusing but that's how I like to see it)
+* We compare each digit (lesser/greater) than the answer
+* Extraneous answers are gray.
+* See Citation [1]
+*/
+fun coloredSequenceText(input: Sequence, answer: Sequence): AnnotatedString {
+    val guess = input.getIntList()
+    val target = answer.getIntList()
+    val green = Color(0xFF00A800)
+    val orange = Color(0xFFE88A16)
+    val red = Color(0xFFE11B42)
+
+    // Return a String that supports Colourful String Support for Wordle-Style feedback
+    return buildAnnotatedString {
+        var i = 0
+        // While loop for guess string (Which may vary and not equal to the answer)
+        while (i < guess.size) {
+            // Colour it Green or the Default text colour if it's an exact match
+            val isMatch = i < target.size && guess[i] == target[i]
+            val isGreater = i < target.size && guess[i] > target[i]
+            val isLesser = i < target.size && guess[i] < target[i]
+            val color = if (isMatch) {
+                green
+            } else if (isGreater) {
+                orange
+            } else if (isLesser) {
+                red
+            } else {
+                Color.Unspecified
+            }
+
+            // Fill the rest if the guess is larger than the answer
+            withStyle(SpanStyle(color = color)) {
+                append(guess[i].toString())
+            }
+            i++
+        }
+    }
+}
+fun isEqual(a: Sequence, b: Sequence): Boolean {
+    if (a.getLength() != b.getLength()) return false
+    return a.getIntList() == b.getIntList()
+}
+
+fun stringToSequence(input: String): Sequence {
+    // Parse string of integers into ints
+    // https://claude.ai/chat/097e3c5a-967c-4ade-8335-a27dee356a91
+    val digits: List<Int> = input.map { it.digitToInt() }
+    val length = digits.count()
+
+    val result = Sequence(length)
+    result.copy(digits)
+    return result
 }
