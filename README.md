@@ -1,5 +1,8 @@
 # Rapid Recall
 UML diagram **DELETE THIS LINK LATER:** https://drive.google.com/drive/u/4/folders/1TFIdgrPl3Mg4lKWT4HES1rGFqNwd9vnJ
+TODO:
+1. Write Descriptions for functions
+2. Include an APK file
 
 # Citations
 Claude was extensively used for this project. This mainly included using small functions.
