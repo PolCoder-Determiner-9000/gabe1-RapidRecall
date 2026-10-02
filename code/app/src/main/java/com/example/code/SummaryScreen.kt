@@ -24,6 +24,17 @@ import androidx.compose.ui.unit.sp
 import kotlin.time.Duration
 import kotlin.time.DurationUnit
 
+/*
+* Log Screen
+* Display the History of the round, especially
+* Round number, time, sequence, timestamp
+* Parameters:
+*   - gameState: GameState to access round information
+*   - modifier: Modifier
+*   - onEntrance: Lambda to return to Entrance
+*   - Summary: Summary to show rounds
+* Returns: Composable Screen
+*/
 @Composable
 fun LogScreen(
     gameState: GameState,
@@ -50,7 +61,8 @@ fun LogScreen(
             )
             Spacer(Modifier.height(64.dp))
 
-
+            // Show null Sequence if no rounds to cache
+            // Otherwise use lazy column to display previous rounds
             if (gameState.getLength() == 0) {
                 Text("Round ${gameState.getRound()}", fontSize = 24.sp)
                 Spacer(Modifier.height(8.dp))
@@ -105,6 +117,17 @@ fun LogScreen(
     }
 }
 
+/*
+* Summary Screen
+* Display the statistics calculated by Summary
+* Parameters:
+*   - Summary: Summary
+*   - roundNum: Round Number
+*   - answer: Answer sequence of round
+*   - Modifier: Modifier to pad stuff
+*   - onPlayAgain: Lambda that returns to the beginning screen
+* Returns: Composable Screen
+*/
 @Composable
 fun SummaryScreen(
     summary      : Summary,
@@ -135,6 +158,8 @@ fun SummaryScreen(
             Spacer(Modifier.height(64.dp))
             Text("Round: $roundNum", fontSize = 24.sp)
             Spacer(Modifier.height(12.dp))
+
+            // Handle uninitialized round at beginning
             if (answer.getLength() == 0) {
                 Text("Sequence: None", fontSize = 24.sp)
             } else {
@@ -150,6 +175,7 @@ fun SummaryScreen(
             )
             Spacer(Modifier.height(24.dp))
 
+            // Handle uninitialized round at beginning
             val recentAttempts = if (summary.getRounds().isNotEmpty()) {
                 val round = summary.getRounds().last()
                 round.attempts
@@ -157,6 +183,7 @@ fun SummaryScreen(
                 0
             }
 
+            // Handle uninitialized round at beginning
             val recentTime: Duration = if (summary.getRounds().isNotEmpty()) {
                 val round = summary.getRounds().last()
                 round.time
@@ -181,6 +208,7 @@ fun SummaryScreen(
 
             // TIME STATISTICS
             // Formatting from Citation [1]
+            // Format time to floats of 2 decimal places, turn into doubles beforehand for compatibility
             Text("Round Time: ${"%.2f".format(recentTime.toDouble(DurationUnit.SECONDS))}s", fontSize = 24.sp)
             Spacer(Modifier.height(8.dp))
             Text("Total Time: ${"%.2f".format(summary.getTotalTime().toDouble(DurationUnit.SECONDS))}s", fontSize = 16.sp)

@@ -39,6 +39,17 @@ import kotlin.time.Duration.Companion.seconds
 import kotlin.time.Duration
 import kotlin.time.TimeSource
 
+
+/* DisplayNumbers
+* Screen handling displaying numbers sequentially
+* Parameters:
+*   Sequence: Answer for round
+*   roundNum: Round Number
+*   modifier: Modifier
+*   OnFinished: Lambda to turn to actual game
+* Returns:
+*   A Screen
+*/
 @Composable
 fun DisplayNumbers(
     sequence  : List<Int>,
@@ -48,8 +59,11 @@ fun DisplayNumbers(
 ) {
     var index by remember { mutableIntStateOf(0) }
 
-    // Coroutine to iterate through stuff or something
+    // Coroutine to iterate through the numbers
+    // With a for loop, we iterate through the numbers to change the screen
+    // And then wait for time
     // See Citation [3]
+
     LaunchedEffect(Unit) {
         for (i in sequence.indices) {
             index = i
@@ -84,6 +98,17 @@ fun DisplayNumbers(
     }
 }
 
+/* GuessNumberScreen
+* Main Screen dealing with the
+* Parameters:
+*   answer: Sequence answer
+*   roundNumber: Round Number
+*   modifier: Modifier for padding
+*   summary: Summary to cache round once correct
+*   onDone: Lambda to turn into the summary screen
+* Returns:
+*   A Screen
+*/
 @Composable
 fun GuessNumberScreen(
     answer: Sequence,
@@ -113,6 +138,7 @@ fun GuessNumberScreen(
     }
 
     // Coroutine to mark time as the game goes on
+    // Capture time with this coroutine
     LaunchedEffect(Unit) {
         while (true) {
             elapsed = mark.elapsedNow()
@@ -134,6 +160,8 @@ fun GuessNumberScreen(
         )
         Spacer(modifier = Modifier.width(8.dp))
 
+        // Main Row dealing with the guess
+        // Extra functionality to stop input once correct
         Row(
             modifier = modifier.padding(all = 16.dp),
             horizontalArrangement = Arrangement.spacedBy(12.dp)
@@ -185,6 +213,7 @@ fun GuessNumberScreen(
         Spacer(modifier = Modifier.width(8.dp))
 
         // Time & Attempts
+        // Let Viewer see elapsed time and number of Attempts
         Row(
             modifier = modifier
                 .fillMaxWidth()
@@ -233,6 +262,7 @@ fun GuessNumberScreen(
         }
 
         // Previous Guesses
+        // Iterate through previous guesses
         Column(
             modifier = modifier.fillMaxSize(),
             verticalArrangement = Arrangement.Center,
@@ -252,6 +282,14 @@ fun GuessNumberScreen(
     }
 }
 
+/* Guess History Function
+* Auxiliary Lazy Column function to iterate through the guesses and handle
+* Wordle-like text comparisons with the answers
+* Parameters:
+*   guess: List of Strings to be turned into sequences
+*   answer: Sequence Answer
+*   modifier: Modifier for padding
+*/
 @Composable
 fun GuessHistory(
     guesses: List<String>,
@@ -278,6 +316,11 @@ fun GuessHistory(
 * Through every sequence (as one sequence, a bit confusing but that's how I like to see it)
 * We compare each digit (lesser/greater) than the answer
 * Extraneous answers are gray.
+* Parameters:
+*   Input: Sequence input
+*   Answer: Sequence answer to compare input with
+* Returns:
+*   A Screen
 * See Citation [1]
 */
 fun coloredSequenceText(input: Sequence, answer: Sequence): AnnotatedString {
@@ -288,6 +331,7 @@ fun coloredSequenceText(input: Sequence, answer: Sequence): AnnotatedString {
     val red = Color(0xFFE11B42)
 
     // Return a String that supports Colourful String Support for Wordle-Style feedback
+    // See Citation [1]
     return buildAnnotatedString {
         var i = 0
         // While loop for guess string (Which may vary and not equal to the answer)
@@ -314,11 +358,26 @@ fun coloredSequenceText(input: Sequence, answer: Sequence): AnnotatedString {
         }
     }
 }
+
+/* isEqual Function
+* Compares two sequences based on length and equality
+* Parameters:
+*   a: Sequence
+*   b: Sequence
+* Returns:
+*   boolean
+*/
 fun isEqual(a: Sequence, b: Sequence): Boolean {
     if (a.getLength() != b.getLength()) return false
     return a.getIntList() == b.getIntList()
 }
 
+/* StringtoSequence Function
+* Turn a String into a Sequence in order for comparison in the GuessHistory function
+* String comes from guessInput from the main screen
+* Parameters: input String
+* Returns: Sequence
+*/
 fun stringToSequence(input: String): Sequence {
     // Parse string of integers into ints
     // See Citation [1]

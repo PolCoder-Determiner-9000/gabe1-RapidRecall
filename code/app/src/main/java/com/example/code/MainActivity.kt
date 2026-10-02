@@ -42,6 +42,11 @@ class MainActivity : ComponentActivity() {
         setContent {
             CodeTheme {
                 Scaffold(modifier = Modifier.fillMaxSize()) { innerPadding ->
+                    /* Screen Switching via Enumerations
+                    * Since I Couldn't learn Navhost on time, resort to enums to switch between screens
+                    * Use a simple When (Case/switch) Statement to change between screens
+                    * Use lambdas from functions to change enum
+                    */
                     var screen by rememberSaveable { mutableStateOf(ScreenMode.ENTRANCE) }
 
                     when (screen) {
@@ -61,7 +66,8 @@ class MainActivity : ComponentActivity() {
                             roundNumber  = gameState.getRound(),
                             onBeginRound = { screen = ScreenMode.DISPLAY },
                             modifier     = Modifier.padding(innerPadding),
-                            initializeSequence = gameState::initializeSequence, // Pass Class Methods into a function
+                            // Pass Class Methods into a function in order for function to use
+                            initializeSequence = gameState::initializeSequence,
 
                         )
                         ScreenMode.DISPLAY -> DisplayNumbers(
@@ -91,6 +97,18 @@ class MainActivity : ComponentActivity() {
     }
 }
 
+/* Entrance Screen
+* MAIN STARTING POINT of the program, switch between
+* Parameters:
+*   Modifier: Modifier
+*   onChange: Lambda to change enum input into desired screen
+*   (Like lambda changing it to one screen, but we're allowing 3 options in the code now)
+*   increaseRound: Increase Round whenever I wanna start a new round
+*   clearSequence: Clear Sequence when round Starts
+* Returns:
+*   Unit
+*   A Screen
+*/
 @Composable
 fun EntranceScreen(
     modifier: Modifier = Modifier,
@@ -156,6 +174,16 @@ fun EntranceScreen(
     }
 }
 
+/* SetupScreen
+* Main Screen that handles initializing the round
+* Parameters:
+*   roundNumber: Round Number Integer
+*   initializeSequence: Initialize the Sequence (Method from GameState)
+*   onBeginRound: Lambda to switch screenMode Enum to display round
+*   modifier: Modifier for padding
+* Returns:
+*   A Screen
+*/
 @Composable
 fun SetupScreen(
     roundNumber: Int,
@@ -193,6 +221,7 @@ fun SetupScreen(
             verticalAlignment = Alignment.CenterVertically,
             horizontalArrangement = Arrangement.spacedBy(16.dp)
         ) {
+            // Buttons are rounded by size
             Button(
                 onClick = { length = (length - 1).coerceAtLeast(1) },
                 enabled = length > 1,

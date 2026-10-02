@@ -1,5 +1,14 @@
 package com.example.code
 
+/*
+* Sequence Class
+* Handles caching in and
+* Parameters: Length (Int), Sequence: MutableList<Int> (List of numbers)
+* Methods:
+*   - Generate(): Unit - (Generates a random sequence),
+*   - Copy(copyFrom: List<Int>): Unit - (Copies a sequence from a list of equal length)
+*   - getIntList(): List<Int> - Get read-only list of numbers
+*/
 class Sequence(
     private val length: Int
 ) {
